@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title%}My Stocks | AlgoTrade{% endblock %}
+
+{% block active_myst %}active{% endblock %}
+
+
+{% block content %}
+
+<div class="container">
+    <h1 class="display-10">Here's all your Watchlist Stocks 📈</h1>
+    <hr class="my-4">
+     
+     <form action="{% url 'my_stocks' %}" class="form-inline my-2 my-lg-0" method="POST">
+        {% csrf_token %}
+        <input class="form-control mr-sm-2" type="search" placeholder="Add Stock" aria-label="Search" name="ticker" >
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Add</button>
+      </form>
+    <br/>
+    <div class="row">
+        <div class="col-4">
+          <div class="list-group" id="list-tab" role="tablist">
+            {% for item in output %}
+            <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile{{item.symbol}}" role="tab" aria-controls="profile">{{item.companyName}}</a>
+            {% endfor %}
+         </div>
+        </div>
+        <div class="col-8">
+            <div class="tab-content" id="nav-tabContent">
+                {% for item in output %}
+                   <div class="tab-pane fade" id="list-profile{{item.symbol}}" role="tabpanel" aria-labelledby="list-profile-list{{item}}">
+                       {{item.companyName}}
+                   </div>
+                {% endfor %}
+            </div>
+        </div>
+  
+  
+
+
+
+{% endblock %}

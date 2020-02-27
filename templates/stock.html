@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title%}AlgoTrade | {{api.companyName}} {% endblock %}
+
+{% block content %}
+
+  <div class="container">
+    <h1 class="display-10">{{api.companyName}}</h1>
+    <hr class="my-4">
+    <p class="lead">This is a modified jumbotron that occupies the entire horizontal space of its parent.</p>
+  </div>
+  
+  <ul class="list-group w-25 p-3">
+    {% for key, value in api.items %}
+      {% if value %}
+        {% if value == "None" %}
+        {% else %}
+          <li class="list-group-item">{{key}} : {{value}}</li>
+        {% endif %}
+      {% endif %} 
+    {% endfor %}
+  </ul>
+  
+
+{% endblock %}
