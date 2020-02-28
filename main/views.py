@@ -7,6 +7,13 @@ from django.contrib import messages
 def index(request):
     import requests
     import json
+    #---------------Yahoo API Test-------------------------
+    import datetime as dt
+    import pandas as pd
+    import pandas_datareader.data as web
+    start = dt.datetime(2019,1,1)
+    end = dt.datetime.now()
+    #------------------------------------------------------
 
     if request.method == 'POST':
         ticker = request.POST['ticker']
@@ -15,7 +22,13 @@ def index(request):
             api = json.loads(api_request.content)
         except Exception as e:
             api = 'Error'
-        return render(request,"stock.html",{'api':api})
+        
+        df = web.DataReader(''+ ticker +'', 'yahoo', start, end)
+        df = df['Close'][-1]
+        return render(request,"stock.html",{
+            'api':api,
+            'df': df,
+        })
 
     else:
         return render(request,"index.html",{'api':''})
@@ -28,7 +41,7 @@ def about(request):
 def my_stocks(request):
     import requests
     import json
-    
+
     #---------------Yahoo API Test-------------------------
     import datetime as dt
     import pandas as pd
