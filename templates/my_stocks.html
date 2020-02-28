@@ -10,7 +10,7 @@
 <div class="container">
     <h1 class="display-10">Here's all your Watchlist Stocks 📈</h1>
     <hr class="my-4">
-     
+
      <form action="{% url 'my_stocks' %}" class="form-inline my-2 my-lg-0" method="POST">
         {% csrf_token %}
         <input class="form-control mr-sm-2" type="search" placeholder="Add Stock" aria-label="Search" name="ticker" >
@@ -48,7 +48,7 @@
                           </div>
                         </div>
 
-                        
+                        {{df}}
                         <!--End of Content Info-->
                       </div>
                    </div>
@@ -56,8 +56,8 @@
              </div>
          </div>
      </div>
-  
-  
+
+
 
 
 

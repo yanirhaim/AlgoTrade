@@ -28,7 +28,17 @@ def about(request):
 def my_stocks(request):
     import requests
     import json
-    
+    #---------------Yahoo API Test-------------------------
+    import datetime as dt
+    import pandas as pd
+    import pandas_datareader.data as web
+    start = dt.datetime(2019,1,1)
+    end = dt.datetime.now()
+
+    df = web.DataReader('TSLA', 'yahoo', start, end)
+    df = df['Close'][-1]
+    #------------------------------------------------------
+
     if request.method =='POST':
         form = StockForm(request.POST or None)
 
@@ -51,6 +61,7 @@ def my_stocks(request):
         return render(request, "my_stocks.html", {
             'ticker':ticker,
             'output':output,
+            'df': df,
         })
 
 #DELETE FUNCTION
