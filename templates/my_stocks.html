@@ -29,7 +29,26 @@
             <div class="tab-content" id="nav-tabContent">
                 {% for item in output %}
                    <div class="tab-pane fade" id="list-profile{{item.symbol}}" role="tabpanel" aria-labelledby="list-profile-list{{item}}">
-                       {{item.companyName}}
+
+                      <div class="container">
+                        <div class="container px-lg-5">
+                          <div class="row mx-lg-n5">
+                            <div class="col py-3 px-lg-5">
+                              <h2 class="font-weight-bold">
+                                {{item.companyName}} ({{item.symbol}})<br/>
+                              </h2>
+                              <h7 class="font-weight-normal">
+                                Latest Time: {{item.latestTime}}<br/>
+                              </h7>
+                              <h1 class="font-weight-bold">
+                                <font color="orange">${{item.latestPrice}}</font>
+                              </h1>
+                              <hr class="my-4">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
                    </div>
                 {% endfor %}
             </div>
