@@ -5,7 +5,10 @@
 {% block content %}
 
   <div class="container">
-    <h1 class="display-10">{{api.companyName}}</h1>
+    <h1 class="display-10 font-weight-bold">
+      {{api.companyName}} ({{api.symbol}})<br/>
+      <font color='orange'>$ {{api.close}}</font>
+    </h1>
     <hr class="my-4">
     <canvas id="myChart"></canvas>
     <p class="lead" align='justify'> <br/>
@@ -24,9 +27,8 @@
     {% endfor %}
   </ul>
 
-  
+  <!-- Java Script for chart.js-->
   <script>
-
     var symbol = "{{api.symbol}}";
 
     //Get APIS//
@@ -138,8 +140,5 @@
 
     getData();
 </script>
-
-  {{df}}
-  
 
 {% endblock %}
