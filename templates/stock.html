@@ -7,6 +7,7 @@
   <div class="container">
     <h1 class="display-10">{{api.companyName}}</h1>
     <hr class="my-4">
+    <canvas id="myChart"></canvas>
     <p class="lead">This is a modified jumbotron that occupies the entire horizontal space of its parent.</p>
   </div>
   
@@ -20,6 +21,65 @@
       {% endif %} 
     {% endfor %}
   </ul>
+
+  
+  <script>
+      var symbol = "{{api.symbol}}";      
+      const api_url = 'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=' + symbol +  '&interval=5min&apikey=00ZERKSSLUKN4XIR'
+
+      async function getData(){
+        var response = await fetch(api_url);
+        var data = await response.json();
+
+        var value = []
+
+        for (var i in data["Time Series (5min)"]) {
+           if (data["Time Series (5min)"].hasOwnProperty(i))
+           value.push(parseFloat(data["Time Series (5min)"][i]["4. close"]));
+        }
+
+        var timevalues = []
+
+        for (var i in data["Time Series (5min)"]) {
+           if (data["Time Series (5min)"].hasOwnProperty(i))
+           timevalues.push(i);
+        }
+
+        value = value.reverse();
+        timevalues = timevalues.reverse();
+
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: timevalues,
+                datasets: [{
+                    label: '$ Close Price',
+                    minBarLength: 200,
+                    data: value,
+                    fill: false,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)'],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+
+      }
+
+      getData();
+  </script>
 
   {{df}}
   
