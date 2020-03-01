@@ -24,62 +24,118 @@
 
   
   <script>
-      var symbol = "{{api.symbol}}";      
-      const api_url = 'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=' + symbol +  '&interval=5min&apikey=00ZERKSSLUKN4XIR'
 
-      async function getData(){
-        var response = await fetch(api_url);
-        var data = await response.json();
+    var symbol = "{{api.symbol}}";
 
-        var value = []
+    //Get APIS//
+    const api_url = 'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol='+ symbol +'&interval=60min&apikey=00ZERKSSLUKN4XIR'
+    const ema20_ulr = 'https://www.alphavantage.co/query?function=EMA&symbol='+ symbol +'&interval=60min&time_period=20&series_type=open&apikey=00ZERKSSLUKN4XIR'
+    const ema10_ulr = 'https://www.alphavantage.co/query?function=EMA&symbol='+ symbol +'interval=60min&time_period=10&series_type=open&apikey=00ZERKSSLUKN4XIR'
 
-        for (var i in data["Time Series (5min)"]) {
-           if (data["Time Series (5min)"].hasOwnProperty(i))
-           value.push(parseFloat(data["Time Series (5min)"][i]["4. close"]));
-        }
+    async function getData(){
+      //fetch the data on the api
+      var response = await fetch(api_url);
+      var data = await response.json();
 
-        var timevalues = []
+      var response2 = await fetch(ema20_ulr);
+      var data_ema = await response2.json();
 
-        for (var i in data["Time Series (5min)"]) {
-           if (data["Time Series (5min)"].hasOwnProperty(i))
-           timevalues.push(i);
-        }
+      var response3 = await fetch(ema10_ulr);
+      var data_ema2 = await response3.json();
 
-        value = value.reverse();
-        timevalues = timevalues.reverse();
-
-        var ctx = document.getElementById('myChart').getContext('2d');
-        var myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: timevalues,
-                datasets: [{
-                    label: '$ Close Price',
-                    minBarLength: 200,
-                    data: value,
-                    fill: false,
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)'],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true
-                        }
-                    }]
-                }
-            }
-        });
-
+      //get the values from the API
+      //get the close values
+      var value = []
+      for (var i in data["Time Series (60min)"]) {
+         if (data["Time Series (60min)"].hasOwnProperty(i))
+         value.push(parseFloat(data["Time Series (60min)"][i]["4. close"]));
+      }
+      var timevalues = []
+      for (var i in data["Time Series (60min)"]) {
+         if (data["Time Series (60min)"].hasOwnProperty(i))
+         timevalues.push(i);
       }
 
-      getData();
-  </script>
+      //get the moving avarege 20 values {just 100}
+      var ema20 = []
+      for (var i in data_ema["Technical Analysis: EMA"]) {
+         if (data_ema["Technical Analysis: EMA"].hasOwnProperty(i))
+         ema20.push(parseFloat(data_ema["Technical Analysis: EMA"][i]["EMA"]));
+      }
+      ema20_final = []
+      for (var i = 0; i<100; i++){
+        ema20_final.push(ema20[i]);
+      }
+
+
+      //get the moving avarege 10 values {just 100}
+      var ema10 = []
+      for (var i in data_ema2["Technical Analysis: EMA"]) {
+         if (data_ema2["Technical Analysis: EMA"].hasOwnProperty(i))
+         ema10.push(parseFloat(data_ema2["Technical Analysis: EMA"][i]["EMA"]));
+      }
+      ema10_final = []
+      for (var i = 0; i<100; i++){
+        ema10_final.push(ema10[i]);
+      }
+
+      ema20_final = ema20_final.reverse();
+      ema10_final = ema10_final.reverse();
+      value = value.reverse();
+      timevalues = timevalues.reverse();
+
+      console.log(ema10_final);
+
+      //chart values and styling
+      var ctx = document.getElementById('myChart').getContext('2d');
+      var myChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+              labels: timevalues,
+              datasets: [{
+                  label: 'Close Price',
+                  minBarLength: 200,
+                  data: value,
+                  fill: false,
+                  backgroundColor: [
+                      'rgba(0, 0, 0)'],
+                  borderColor: [
+                      'rgba(0, 0, 0)'],
+                  borderWidth: 1,
+              },{
+                label: 'EMA 20',
+                minBarLength: 200,
+                data: ema20_final,
+                fill: false,
+                backgroundColor: ['rgba(255, 0, 0)'],
+                borderColor: ['rgba(255, 0, 0)'],
+                borderWidth: 1,
+              },{
+                label: 'EMA 10',
+                minBarLength: 200,
+                data: ema10_final,
+                fill: false,
+                backgroundColor: ['rgba(0, 0, 255)'],
+                borderColor: ['rgba(0, 0, 255)'],
+                borderWidth: 1,
+              }
+            ]
+          },
+          options: {
+              scales: {
+                  yAxes: [{
+                      ticks: {
+                          beginAtZero: false
+                      }
+                  }]
+              }
+          }
+      });
+
+    }
+
+    getData();
+</script>
 
   {{df}}
   
