@@ -1,1 +1,58 @@
 {% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <h1 class="display-10">Here's all your Watchlist Stocks 📈</h1>
+    <hr class="my-4">
+
+    <div class="container">
+        <div class="row row-cols-6 justify-content-between">
+            <div class="card border-dark mb-3" style="max-width: 18rem;">
+                <div class="card-header card text-center"><h1>AAPL</h1></div>
+                <div class="card-body text-dark ard text-center">
+                    <h5 class="card-text"><h3>$ {{aapl}}</h3></h5>
+                    <form action="{% url 'home' %}" class="form-inline my-2 my-lg-0" method="POST">
+                        {% csrf_token %}
+                        <button class="btn btn-primary " type="submit" value="aapl" name="ticker">🔎 Take a Look</button>
+                    </form>
+                </div>
+            </div>
+            <div class="card border-dark mb-3" style="max-width: 18rem;">
+                <div class="card-header card text-center"><h1>TSLA</h1></div>
+                <div class="card-body text-dark ard text-center">
+                    <h5 class="card-text"><h3>$ {{tsla}}</h3></h5>
+                    <form action="{% url 'home' %}" class="form-inline my-2 my-lg-0" method="POST">
+                        {% csrf_token %}
+                        <button class="btn btn-primary " type="submit" value="tsla" name="ticker">🔎 Take a Look</button>
+                    </form>
+                </div>
+            </div>
+            <div class="card border-dark mb-3" style="max-width: 18rem;">
+                <div class="card-header card text-center"><h1>MSFT</h1></div>
+                <div class="card-body text-dark ard text-center">
+                    <h5 class="card-text"><h3>$ {{msft}}</h3></h5>
+                    <form action="{% url 'home' %}" class="form-inline my-2 my-lg-0" method="POST">
+                        {% csrf_token %}
+                        <button class="btn btn-primary " type="submit" value="msft" name="ticker">🔎 Take a Look</button>
+                    </form>
+                </div>
+            </div>
+            <!--Stocks value from API-->
+            {% for name in valueables %}
+            <div class="card border-dark mb-3" style="max-width: 18rem;">
+                <div class="card-header card text-center"><h1>{{name.ticker}}</h1></div>
+                <div class="card-body text-dark card text-center">
+                    <h5 class="card-text"><h3>$ {{name.price}}</h3></h5>
+                    <form action="{% url 'home' %}" class="form-inline my-2 my-lg-0" method="POST">
+                        {% csrf_token %}
+                        <button class="btn btn-primary " type="submit" value="{{name.ticker}}" name="ticker">🔎 Take a Look</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor%}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

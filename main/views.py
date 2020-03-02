@@ -31,7 +31,47 @@ def index(request):
         })
 
     else:
-        return render(request,"index.html",{'api':''})
+
+        api_requestm = requests.get("https://financialmodelingprep.com/api/v3/stock/gainers")
+        try:
+            api = json.loads(api_requestm.content)
+        except Exception as e:
+            api = 'Error'
+
+        #------------------------APPLE JSON----------------------------------------------------------------------------------------
+        api_request = requests.get("https://cloud.iexapis.com/stable/stock/aapl/quote?token=pk_b613df2d4a924702ae1e2a134c2bbaba")
+        apple = json.loads(api_request.content)
+        appl = apple['close']
+        #--------------------------------------------------------------------------------------------------------------------------
+
+        #------------------------TESLA JSON----------------------------------------------------------------------------------------
+        api_request = requests.get("https://cloud.iexapis.com/stable/stock/tsla/quote?token=pk_b613df2d4a924702ae1e2a134c2bbaba")
+        tesla = json.loads(api_request.content)
+        tsla = tesla['close']
+        #--------------------------------------------------------------------------------------------------------------------------
+
+        #------------------------TESLA JSON----------------------------------------------------------------------------------------
+        api_request = requests.get("https://cloud.iexapis.com/stable/stock/msft/quote?token=pk_b613df2d4a924702ae1e2a134c2bbaba")
+        msft = json.loads(api_request.content)
+        msft = msft['close']
+        #--------------------------------------------------------------------------------------------------------------------------
+
+        valueables = []
+        count = 0
+        for item in api['mostGainerStock']:
+            if count < 2:
+                valueables.append(item)
+                count += 1
+            else:
+                break
+
+        return render(request,"index.html",{
+            'api':'',
+            'valueables': valueables,
+            'aapl': appl,
+            'tsla': tsla,
+            'msft': msft,
+        })
 
 #ABOUT PAGE
 def about(request):
