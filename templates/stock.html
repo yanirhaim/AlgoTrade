@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title%}AlgoTrade | {{api.companyName}} {% endblock %}
+{% block title%}AlgoTrade | {{api.symbol}} | ${{api.latestPrice}} {% endblock %}
 
 {% block content %}
 
   <div class="container">
     <h1 class="display-10 font-weight-bold">
       {{api.companyName}} ({{api.symbol}})<br/>
-      <font color='orange'>$ {{api.close}}</font>
+      <font color='orange'>$ {{api.latestPrice}}</font>
     </h1>
     <hr class="my-4">
     <canvas id="myChart"></canvas>

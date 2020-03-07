@@ -3,17 +3,27 @@ from .models import Stock
 from .forms import StockForm
 from django.contrib import messages
 
+
+def stock (request, stock_id):
+    import requests
+    import json
+
+    api_request = requests.get("https://cloud.iexapis.com/stable/stock/" + stock_id + "/quote?token=pk_b613df2d4a924702ae1e2a134c2bbaba")
+
+    try:
+        api = json.loads(api_request.content)
+    except Exception as e:
+        api = 'Error'
+
+    return render(request, "stock.html", {
+        'api':api,
+    })
+
+
 #MAIN PAGE - AND STOCK SEARCH PAGE
 def index(request):
     import requests
     import json
-    #---------------Yahoo API Test-------------------------
-    import datetime as dt
-    import pandas as pd
-    import pandas_datareader.data as web
-    start = dt.datetime(2019,1,1)
-    end = dt.datetime.now()
-    #------------------------------------------------------
 
     if request.method == 'POST':
         ticker = request.POST['ticker']
@@ -23,11 +33,8 @@ def index(request):
         except Exception as e:
             api = 'Error'
         
-        df = web.DataReader(''+ ticker +'', 'yahoo', start, end)
-        df = df['Close'][-1]
         return render(request,"stock.html",{
             'api':api,
-            'df': df,
         })
 
     else:
@@ -37,29 +44,11 @@ def index(request):
             api = json.loads(api_requestm.content)
         except Exception as e:
             api = 'Error'
-
-        #------------------------APPLE JSON----------------------------------------------------------------------------------------
-        api_request = requests.get("https://cloud.iexapis.com/stable/stock/aapl/quote?token=pk_b613df2d4a924702ae1e2a134c2bbaba")
-        apple = json.loads(api_request.content)
-        appl = apple['close']
-        #--------------------------------------------------------------------------------------------------------------------------
-
-        #------------------------TESLA JSON----------------------------------------------------------------------------------------
-        api_request = requests.get("https://cloud.iexapis.com/stable/stock/tsla/quote?token=pk_b613df2d4a924702ae1e2a134c2bbaba")
-        tesla = json.loads(api_request.content)
-        tsla = tesla['close']
-        #--------------------------------------------------------------------------------------------------------------------------
-
-        #------------------------TESLA JSON----------------------------------------------------------------------------------------
-        api_request = requests.get("https://cloud.iexapis.com/stable/stock/msft/quote?token=pk_b613df2d4a924702ae1e2a134c2bbaba")
-        msft = json.loads(api_request.content)
-        msft = msft['close']
-        #--------------------------------------------------------------------------------------------------------------------------
-
+            
         valueables = []
         count = 0
         for item in api['mostGainerStock']:
-            if count < 2:
+            if count < 10: #quantity of gainer stocks you want
                 valueables.append(item)
                 count += 1
             else:
@@ -68,9 +57,6 @@ def index(request):
         return render(request,"index.html",{
             'api':'',
             'valueables': valueables,
-            'aapl': appl,
-            'tsla': tsla,
-            'msft': msft,
         })
 
 #ABOUT PAGE
