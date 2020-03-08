@@ -14,14 +14,14 @@
     <br/>
     <br/>
     <h1 class="display-10 font-weight-bold">
-      Ideas 🤓 📐
+      Strategies 🤓 📐
     </h1>
     <hr class="my-4">
     <div class="row">
       <div class="col-4">
         <div class="list-group" id="list-tab" role="tablist">
           <a class="list-group-item list-group-item-action active" id="list-home-list" data-toggle="list" href="#list-home" role="tab" aria-controls="home">Moving Avarage Strategy</a>
-          <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="profile">Profile</a>
+          <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="profile">Moving Average Convergence Divergence Srategy</a>
           <a class="list-group-item list-group-item-action" id="list-messages-list" data-toggle="list" href="#list-messages" role="tab" aria-controls="messages">Messages</a>
           <a class="list-group-item list-group-item-action" id="list-settings-list" data-toggle="list" href="#list-settings" role="tab" aria-controls="settings">Settings</a>
         </div>
@@ -42,7 +42,20 @@
               <li>Place the initial stop-loss order below the 20-period EMA <span class="badge badge-dark">&nbsp;</span> (for a buy trade).</li>
             </ul>  
           </div>
-          <div class="tab-pane fade" id="list-profile" role="tabpanel" aria-labelledby="list-profile-list">...</div>
+          <div class="tab-pane fade" id="list-profile" role="tabpanel" aria-labelledby="list-profile-list">
+            <h1 class="display-10 font-weight-bold">
+              Moving Average Convergence Divergence
+            </h1>
+            <hr class="my-4">
+            <canvas id="macdChart"></canvas>
+            <br/>
+            <h2>How does the strategy works ?</h2>
+            <ul>
+              <li>Buy when the 5-period EMA <span class="badge badge-dark">&nbsp;</span> crosses from below to above the 20-period EMA <span class="badge badge-danger">&nbsp;</span>, and the price, five, and 20-period EMAs are above the 50 EMA <span class="badge badge-primary">&nbsp;</span>.</li>
+              <li>For a sell trade, sell when the 5-period EMA <span class="badge badge-dark">&nbsp;</span> crosses from above to below the 20-period EMA <span class="badge badge-danger">&nbsp;</span>, and both EMAs and the price are below the 50-period EMA <span class="badge badge-primary">&nbsp;</span>.</li>
+              <li>Place the initial stop-loss order below the 20-period EMA <span class="badge badge-dark">&nbsp;</span> (for a buy trade).</li>
+            </ul>  
+          </div>
           <div class="tab-pane fade" id="list-messages" role="tabpanel" aria-labelledby="list-messages-list">...</div>
           <div class="tab-pane fade" id="list-settings" role="tabpanel" aria-labelledby="list-settings-list">...</div>
         </div>
@@ -77,6 +90,8 @@
       const ema5_ulr = 'https://www.alphavantage.co/query?function=EMA&symbol='+ symbol +'&interval=15min&time_period=5&series_type=open&apikey=00ZERKSSLUKN4XIR'
       const ema20_ulr = 'https://www.alphavantage.co/query?function=EMA&symbol='+ symbol +'&interval=15min&time_period=20&series_type=open&apikey=00ZERKSSLUKN4XIR'
       const ema50_ulr = 'https://www.alphavantage.co/query?function=EMA&symbol='+ symbol +'&interval=15min&time_period=50&series_type=open&apikey=00ZERKSSLUKN4XIR'
+      const macd_ulr = 'https://www.alphavantage.co/query?function=MACD&symbol='+ symbol +'&interval=15min&series_type=open&apikey=00ZERKSSLUKN4XIR'
+
 
       async function getData(){
         //fetch the data on the api---------------------
@@ -91,6 +106,9 @@
 
         var response4 = await fetch(ema50_ulr);
         var data_ema50 = await response4.json();
+
+        var response5 = await fetch(macd_ulr);
+        var data_macd = await response5.json();
       //------------------------------------------------
 
 
@@ -164,8 +182,64 @@
           timeEMAvalues_final.push(timeEMAvalues[i]);
         }
         timeEMAvalues_final = timeEMAvalues_final.reverse();
+        //----------------------------------------------------------------------
 
-        console.log(timeEMAvalues_final);
+        //time frame of the MACD chart------------------------------------------
+        var timeMACD = []
+        for (var i in data_macd["Technical Analysis: MACD"]) {
+          if (data_macd["Technical Analysis: MACD"].hasOwnProperty(i))
+          timeMACD.push(i);
+        }
+        timeMACD_final = []
+        for (var i = 0; i<100; i++){
+          timeMACD_final.push(timeMACD[i]);
+        }
+        timeMACD_final = timeMACD_final.reverse();
+
+        console.log(timeMACD_final);
+        //----------------------------------------------------------------------
+
+        //MACD values chart----------------------------------------------------
+        var macd = []
+        for (var i in data_macd["Technical Analysis: MACD"]) {
+          if (data_macd["Technical Analysis: MACD"].hasOwnProperty(i))
+          macd.push(parseFloat(data_macd["Technical Analysis: MACD"][i]["MACD"]));
+        }
+        macd_final = []
+        for (var i = 0; i<100; i++){
+          macd_final.push(macd[i]);
+        }
+        macd_final = macd_final.reverse();
+
+        console.log(macd_final);
+        //----------------------------------------------------------------------
+
+        //MACD_Hist values chart-------------------------------------------------
+        var macd_h = []
+        for (var i in data_macd["Technical Analysis: MACD"]) {
+          if (data_macd["Technical Analysis: MACD"].hasOwnProperty(i))
+          macd_h.push(parseFloat(data_macd["Technical Analysis: MACD"][i]["MACD_Hist"]));
+        }
+        macdh_final = []
+        for (var i = 0; i<100; i++){
+          macdh_final.push(macd_h[i]);
+        }
+        macdh_final = macdh_final.reverse();
+
+        console.log(macdh_final);
+        //----------------------------------------------------------------------
+
+        //MACD_Hist values chart-------------------------------------------------
+        var macd_s = []
+        for (var i in data_macd["Technical Analysis: MACD"]) {
+          if (data_macd["Technical Analysis: MACD"].hasOwnProperty(i))
+          macd_s.push(parseFloat(data_macd["Technical Analysis: MACD"][i]["MACD_Signal"]));
+        }
+        macds_final = []
+        for (var i = 0; i<100; i++){
+          macds_final.push(macd_s[i]);
+        }
+        macds_final = macds_final.reverse();
         //----------------------------------------------------------------------
 
         //Main Chart of the Stock-----------------------------------------------
@@ -230,6 +304,45 @@
                   borderColor: ['rgba(0, 0, 255)'],
                   borderWidth: 1,
                 }
+              ]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: false
+                        }
+                    }],
+                    xAxes: [{
+                        display:false
+                    }]
+                }
+            }
+        });
+
+        //MACD Charts------------------------------------------------
+        var ctx = document.getElementById('macdChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: timeMACD_final,
+                datasets: [{
+                  type: 'line',
+                  label: 'MACD SIGNAL',
+                  borderColor: "#FF0000",
+                  data: macds_final,
+                  fill: false,
+                },{
+                  type: 'line',
+                  label: 'MACD',
+                  borderColor: "#0000FF",
+                  data: macd_final,
+                  fill: false,
+                },{
+                  label: 'MACD HIST',
+                  backgroundColor: "b#36ecd",
+                  data: macdh_final,
+                },
               ]
             },
             options: {
