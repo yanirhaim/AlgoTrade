@@ -3,7 +3,6 @@ from .models import Stock
 from .forms import StockForm
 from django.contrib import messages
 
-
 def stock (request, stock_id):
     import requests
     import json
@@ -12,11 +11,28 @@ def stock (request, stock_id):
 
     try:
         api = json.loads(api_request.content)
+        stock_name = api['companyName'].split(',')[0]
+        stock_name = stock_name.split()[0]
+        news_request = requests.get("http://newsapi.org/v2/top-headlines?q=" + stock_name + "&apiKey=166d39cbdc1e4442b00b48ec3880f9d6")
+        news = json.loads(news_request.content)        
     except Exception as e:
         api = 'Error'
 
+    news = news['articles']
+
+    articles = [] 
+    amount_art = 5;
+    count = 0;
+
+    for items in news:
+        if count < amount_art:
+            articles.append(items)
+            count = count + 1
+
+
     return render(request, "stock.html", {
         'api':api,
+        'news':articles,
     })
 
 

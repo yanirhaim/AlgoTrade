@@ -22,15 +22,13 @@
         <div class="list-group" id="list-tab" role="tablist">
           <a class="list-group-item list-group-item-action active" id="list-home-list" data-toggle="list" href="#list-home" role="tab" aria-controls="home">Moving Avarage Strategy</a>
           <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="profile">Moving Average Convergence Divergence Srategy</a>
-          <a class="list-group-item list-group-item-action" id="list-messages-list" data-toggle="list" href="#list-messages" role="tab" aria-controls="messages">Messages</a>
-          <a class="list-group-item list-group-item-action" id="list-settings-list" data-toggle="list" href="#list-settings" role="tab" aria-controls="settings">Settings</a>
         </div>
       </div>
       <div class="col-8">
         <div class="tab-content" id="nav-tabContent">
           <div class="tab-pane fade show active" id="list-home" role="tabpanel" aria-labelledby="list-home-list">
             <h1 class="display-10 font-weight-bold">
-              Moving Avarage Strategy
+              Exponential Moving Avarage 
             </h1>
             <hr class="my-4">
             <canvas id="movaChart"></canvas>
@@ -51,17 +49,33 @@
             <br/>
             <h2>How does the strategy works ?</h2>
             <ul>
-              <li>Buy when the 5-period EMA <span class="badge badge-dark">&nbsp;</span> crosses from below to above the 20-period EMA <span class="badge badge-danger">&nbsp;</span>, and the price, five, and 20-period EMAs are above the 50 EMA <span class="badge badge-primary">&nbsp;</span>.</li>
-              <li>For a sell trade, sell when the 5-period EMA <span class="badge badge-dark">&nbsp;</span> crosses from above to below the 20-period EMA <span class="badge badge-danger">&nbsp;</span>, and both EMAs and the price are below the 50-period EMA <span class="badge badge-primary">&nbsp;</span>.</li>
-              <li>Place the initial stop-loss order below the 20-period EMA <span class="badge badge-dark">&nbsp;</span> (for a buy trade).</li>
+              <li>Trade the MACD <span class="badge badge-primary">&nbsp;</span> and Signal line <span class="badge badge-danger">&nbsp;</span> crossovers. Using the trend as the context, when the price is trending higher (MACD HIST <span class="badge badge-secondary">&nbsp;</span> should be above zero line), buy when the MACD <span class="badge badge-primary">&nbsp;</span> crosses above the Signal line <span class="badge badge-danger">&nbsp;</span> from below. In a downtrend (MACD HIST <span class="badge badge-secondary">&nbsp;</span> should be below zero line), short sell when the MACD <span class="badge badge-primary">&nbsp;</span> crosses below the Signal line <span class="badge badge-danger">&nbsp;</span>.</li>
             </ul>  
           </div>
-          <div class="tab-pane fade" id="list-messages" role="tabpanel" aria-labelledby="list-messages-list">...</div>
-          <div class="tab-pane fade" id="list-settings" role="tabpanel" aria-labelledby="list-settings-list">...</div>
         </div>
       </div>
     </div>
-
+    <br/>
+    <br/>
+    <h1 class="display-10 font-weight-bold">
+      News 📰
+    </h1>
+    <hr class="my-4">
+      {% for item in news %}
+        <div class="card">
+          <div class="card-body">
+            <div class="media">
+              <div class="media-body">
+                <h5 class="mt-0 mb-1"><a href="{{item.url}}">{{item.title}}</a></h5>
+                <hr class="my-4">
+                {{item.content}}
+              </div>
+              <img src="{{item.urlToImage}}" class="ml-3" alt="..." width="64" height="64">
+            </div>
+          </div>
+        </div>
+        <br/>
+       {% endfor %}
     <br/>
     <br/>
     <br/>
@@ -86,12 +100,13 @@
       var symbol = "{{api.symbol}}";
 
       //Get APIS//
+      //API : 00ZERKSSLUKN4XIR
       const api_url = 'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol='+ symbol +'&interval=15min&apikey=00ZERKSSLUKN4XIR'
       const ema5_ulr = 'https://www.alphavantage.co/query?function=EMA&symbol='+ symbol +'&interval=15min&time_period=5&series_type=open&apikey=00ZERKSSLUKN4XIR'
       const ema20_ulr = 'https://www.alphavantage.co/query?function=EMA&symbol='+ symbol +'&interval=15min&time_period=20&series_type=open&apikey=00ZERKSSLUKN4XIR'
       const ema50_ulr = 'https://www.alphavantage.co/query?function=EMA&symbol='+ symbol +'&interval=15min&time_period=50&series_type=open&apikey=00ZERKSSLUKN4XIR'
       const macd_ulr = 'https://www.alphavantage.co/query?function=MACD&symbol='+ symbol +'&interval=15min&series_type=open&apikey=00ZERKSSLUKN4XIR'
-
+      //const sma_url = 'https://www.alphavantage.co/query?function=SMA&symbol='+ symbol +'&interval=15min&time_period=28&series_type=open&apikey=R5PDUEUMT1YYNJGR'
 
       async function getData(){
         //fetch the data on the api---------------------
@@ -109,6 +124,9 @@
 
         var response5 = await fetch(macd_ulr);
         var data_macd = await response5.json();
+
+        //var response6 = await fetch(sma_url);
+        //var data_sma = await response6.json();
       //------------------------------------------------
 
 
@@ -195,8 +213,6 @@
           timeMACD_final.push(timeMACD[i]);
         }
         timeMACD_final = timeMACD_final.reverse();
-
-        console.log(timeMACD_final);
         //----------------------------------------------------------------------
 
         //MACD values chart----------------------------------------------------
@@ -210,8 +226,6 @@
           macd_final.push(macd[i]);
         }
         macd_final = macd_final.reverse();
-
-        console.log(macd_final);
         //----------------------------------------------------------------------
 
         //MACD_Hist values chart-------------------------------------------------
@@ -225,8 +239,6 @@
           macdh_final.push(macd_h[i]);
         }
         macdh_final = macdh_final.reverse();
-
-        console.log(macdh_final);
         //----------------------------------------------------------------------
 
         //MACD_Hist values chart-------------------------------------------------
@@ -242,6 +254,34 @@
         macds_final = macds_final.reverse();
         //----------------------------------------------------------------------
 
+        /*get the SMA 28 values {just 100}-------------------------------------
+        var sma28 = []
+        for (var i in data_sma["Technical Analysis: SMA"]) {
+          if (data_sma["Technical Analysis: SMA"].hasOwnProperty(i))
+          sma28.push(parseFloat(data_sma["Technical Analysis: SMA"][i]["SMA"]));
+        }
+        sma28_final = []
+        for (var i = 0; i<100; i++){
+          sma28_final.push(sma28[i]);
+        }
+        sma28_final = sma28_final.reverse();
+        console.log(sma28_final)
+        ----------------------------------------------------------------------*/
+
+        /*time frame of the SMA chart------------------------------------------
+        var timeSAMvalues = []
+        for (var i in data_sma["Technical Analysis: SMA"]) {
+          if (data_sma["Technical Analysis: SMA"].hasOwnProperty(i))
+          timeSAMvalues.push(i);
+        }
+        timeSAMvalues_final = []
+        for (var i = 0; i<100; i++){
+          timeSAMvalues_final.push(timeSAMvalues[i]);
+        }
+        timeSAMvalues_final = timeSAMvalues_final.reverse();
+        console.log(timeSAMvalues_final)
+        ----------------------------------------------------------------------*/
+
         //Main Chart of the Stock-----------------------------------------------
         var ctx = document.getElementById('mainChart').getContext('2d');
         var myChart = new Chart(ctx, {
@@ -252,9 +292,9 @@
                     label: 'Close Price',
                     minBarLength: 200,
                     data: value,
-                    fill: false,
-                    borderColor: [
-                        'rgba(50, 205, 50)'],
+                    fill: true,
+                    backgroundColor: '#90ee90',
+                    borderColor:'rgba(0, 0, 0)',
                     borderWidth: 1,
                 },
               ]
@@ -281,28 +321,19 @@
                 labels: timeEMAvalues_final,
                 datasets: [{
                   label: 'EMA 5',
-                  minBarLength: 200,
                   data: ema5_final,
                   fill: false,
-                  backgroundColor: ['rgba(255, 0, 0)'],
-                  borderColor: ['rgba(0, 0, 0)'],
-                  borderWidth: 1,
+                  borderColor: 'rgba(0, 0, 0)',
                 },{
                   label: 'EMA 20',
-                  minBarLength: 200,
                   data: ema20_final,
                   fill: false,
-                  backgroundColor: ['rgba(0, 0, 0)'],
-                  borderColor: ['rgba(255, 0, 0)'],
-                  borderWidth: 1,
+                  borderColor: "#FF0000",
                 },{
                   label: 'EMA 50',
-                  minBarLength: 200,
                   data: ema50_final,
                   fill: false,
-                  backgroundColor: ['rgba(0, 0, 255)'],
-                  borderColor: ['rgba(0, 0, 255)'],
-                  borderWidth: 1,
+                  borderColor: "#0000FF",
                 }
               ]
             },
@@ -358,6 +389,44 @@
                 }
             }
         });
+
+        /*Simple Moving Avarage Chart------------------------------------------------
+        var ctx = document.getElementById('smaChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: timeSAMvalues_final,
+                datasets: [{
+                  label: 'SMA 28',
+                  minBarLength: 200,
+                  data: sma28_final,
+                  fill: false,
+                  backgroundColor: ['rgba(255, 0, 0)'],
+                  borderWidth: 1,
+                },{
+                  label: 'Close Price',
+                  minBarLength: 200,
+                  data: value,
+                  fill: false,
+                  backgroundColor: ['rgba(0, 0, 0)'],
+                  borderWidth: 1,
+                }
+              ]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: false
+                        }
+                    }],
+                    xAxes: [{
+                        display:false
+                    }]
+                }
+            }
+        });
+        ----------------------------------------------------------------------*/
 
       }
 
