@@ -10,135 +10,245 @@
       <font color='orange'>$ {{api.latestPrice}}</font>
     </h1>
     <hr class="my-4">
-    <canvas id="myChart"></canvas>
-    <p class="lead" align='justify'> <br/>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean fringilla consequat urna, in porttitor ante faucibus vel. Nunc lorem libero, pulvinar ut congue sed, maximus sit amet magna. Integer cursus non metus vel fringilla. Curabitur et sapien non sapien feugiat pulvinar sit amet vel est. Donec ultricies leo volutpat odio convallis, eu molestie nisl egestas. Donec non tincidunt elit, quis posuere tellus. In at risus nec urna posuere consequat. Integer a efficitur orci. Curabitur malesuada tempus feugiat. Maecenas aliquet ornare congue. Quisque fermentum aliquet ex, sed mattis ante pretium ut. Quisque imperdiet massa sed consequat consectetur.
-    </p>
+    <canvas id="mainChart"></canvas>
+    <br/>
+    <br/>
+    <h1 class="display-10 font-weight-bold">
+      Ideas 🤓 📐
+    </h1>
+    <hr class="my-4">
+    <div class="row">
+      <div class="col-4">
+        <div class="list-group" id="list-tab" role="tablist">
+          <a class="list-group-item list-group-item-action active" id="list-home-list" data-toggle="list" href="#list-home" role="tab" aria-controls="home">Moving Avarage Strategy</a>
+          <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="profile">Profile</a>
+          <a class="list-group-item list-group-item-action" id="list-messages-list" data-toggle="list" href="#list-messages" role="tab" aria-controls="messages">Messages</a>
+          <a class="list-group-item list-group-item-action" id="list-settings-list" data-toggle="list" href="#list-settings" role="tab" aria-controls="settings">Settings</a>
+        </div>
+      </div>
+      <div class="col-8">
+        <div class="tab-content" id="nav-tabContent">
+          <div class="tab-pane fade show active" id="list-home" role="tabpanel" aria-labelledby="list-home-list">
+            <h1 class="display-10 font-weight-bold">
+              Moving Avarage Strategy
+            </h1>
+            <hr class="my-4">
+            <canvas id="movaChart"></canvas>
+            <br/>
+            <h2>How does the strategy works ?</h2>
+            <ul>
+              <li>Buy when the 5-period EMA <span class="badge badge-dark">&nbsp;</span> crosses from below to above the 20-period EMA <span class="badge badge-danger">&nbsp;</span>, and the price, five, and 20-period EMAs are above the 50 EMA <span class="badge badge-primary">&nbsp;</span>.</li>
+              <li>For a sell trade, sell when the 5-period EMA <span class="badge badge-dark">&nbsp;</span> crosses from above to below the 20-period EMA <span class="badge badge-danger">&nbsp;</span>, and both EMAs and the price are below the 50-period EMA <span class="badge badge-primary">&nbsp;</span>.</li>
+              <li>Place the initial stop-loss order below the 20-period EMA <span class="badge badge-dark">&nbsp;</span> (for a buy trade).</li>
+            </ul>  
+          </div>
+          <div class="tab-pane fade" id="list-profile" role="tabpanel" aria-labelledby="list-profile-list">...</div>
+          <div class="tab-pane fade" id="list-messages" role="tabpanel" aria-labelledby="list-messages-list">...</div>
+          <div class="tab-pane fade" id="list-settings" role="tabpanel" aria-labelledby="list-settings-list">...</div>
+        </div>
+      </div>
+    </div>
+
+    <br/>
+    <br/>
+    <br/>
+
   </div>
-  
-  <ul class="list-group w-25 p-3">
-    {% for key, value in api.items %}
-      {% if value %}
-        {% if value == "None" %}
-        {% else %}
-          <li class="list-group-item">{{key}} : {{value}}</li>
-        {% endif %}
-      {% endif %} 
-    {% endfor %}
-  </ul>
+    <!-- 
+      <ul class="list-group w-25 p-3">
+      {% for key, value in api.items %}
+        {% if value %}
+          {% if value == "None" %}
+          {% else %}
+            <li class="list-group-item">{{key}} : {{value}}</li>
+          {% endif %}
+        {% endif %} 
+      {% endfor %}
+      </ul>
+    -->
 
-  <!-- Java Script for chart.js-->
-  <script>
-    var symbol = "{{api.symbol}}";
+    <!-- Java Script for chart.js-->
+    <script>
 
-    //Get APIS//
-    const api_url = 'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol='+ symbol +'&interval=60min&apikey=00ZERKSSLUKN4XIR'
-    const ema20_ulr = 'https://www.alphavantage.co/query?function=EMA&symbol='+ symbol +'&interval=60min&time_period=20&series_type=open&apikey=00ZERKSSLUKN4XIR'
-    const ema10_ulr = 'https://www.alphavantage.co/query?function=EMA&symbol='+ symbol +'&interval=60min&time_period=10&series_type=open&apikey=00ZERKSSLUKN4XIR'
+      var symbol = "{{api.symbol}}";
 
-    async function getData(){
-      //fetch the data on the api
-      var response = await fetch(api_url);
-      var data = await response.json();
+      //Get APIS//
+      const api_url = 'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol='+ symbol +'&interval=15min&apikey=00ZERKSSLUKN4XIR'
+      const ema5_ulr = 'https://www.alphavantage.co/query?function=EMA&symbol='+ symbol +'&interval=15min&time_period=5&series_type=open&apikey=00ZERKSSLUKN4XIR'
+      const ema20_ulr = 'https://www.alphavantage.co/query?function=EMA&symbol='+ symbol +'&interval=15min&time_period=20&series_type=open&apikey=00ZERKSSLUKN4XIR'
+      const ema50_ulr = 'https://www.alphavantage.co/query?function=EMA&symbol='+ symbol +'&interval=15min&time_period=50&series_type=open&apikey=00ZERKSSLUKN4XIR'
 
-      var response2 = await fetch(ema20_ulr);
-      var data_ema = await response2.json();
+      async function getData(){
+        //fetch the data on the api---------------------
+        var response = await fetch(api_url);
+        var data = await response.json();
 
-      var response3 = await fetch(ema10_ulr);
-      var data_ema2 = await response3.json();
+        var response2 = await fetch(ema5_ulr);
+        var data_ema5 = await response2.json();
 
-      //get the values from the API
-      //get the close values
-      var value = []
-      for (var i in data["Time Series (60min)"]) {
-         if (data["Time Series (60min)"].hasOwnProperty(i))
-         value.push(parseFloat(data["Time Series (60min)"][i]["4. close"]));
-      }
-      var timevalues = []
-      for (var i in data["Time Series (60min)"]) {
-         if (data["Time Series (60min)"].hasOwnProperty(i))
-         timevalues.push(i);
-      }
+        var response3 = await fetch(ema20_ulr);
+        var data_ema20 = await response3.json();
 
-      //get the moving avarege 20 values {just 100}
-      var ema20 = []
-      for (var i in data_ema["Technical Analysis: EMA"]) {
-         if (data_ema["Technical Analysis: EMA"].hasOwnProperty(i))
-         ema20.push(parseFloat(data_ema["Technical Analysis: EMA"][i]["EMA"]));
-      }
-      ema20_final = []
-      for (var i = 0; i<100; i++){
-        ema20_final.push(ema20[i]);
-      }
+        var response4 = await fetch(ema50_ulr);
+        var data_ema50 = await response4.json();
+      //------------------------------------------------
 
 
-      //get the moving avarege 10 values {just 100}
-      var ema10 = []
-      for (var i in data_ema2["Technical Analysis: EMA"]) {
-         if (data_ema2["Technical Analysis: EMA"].hasOwnProperty(i))
-         ema10.push(parseFloat(data_ema2["Technical Analysis: EMA"][i]["EMA"]));
-      }
-      ema10_final = []
-      for (var i = 0; i<100; i++){
-        ema10_final.push(ema10[i]);
-      }
+        //get the values from the API
 
-      ema20_final = ema20_final.reverse();
-      ema10_final = ema10_final.reverse();
-      value = value.reverse();
-      timevalues = timevalues.reverse();
+        //get the close values-------------------------------------------------
+        var value = []
+        for (var i in data["Time Series (15min)"]) {
+          if (data["Time Series (15min)"].hasOwnProperty(i))
+          value.push(parseFloat(data["Time Series (15min)"][i]["4. close"]));
+        }
+        value = value.reverse();
+        //---------------------------------------------------------------------
 
-      console.log(ema10_final);
+        //time frame of the main chart-----------------------------------------
+        var timevalues = []
+        for (var i in data["Time Series (15min)"]) {
+          if (data["Time Series (15min)"].hasOwnProperty(i))
+          timevalues.push(i);
+        }
+        timevalues = timevalues.reverse();
+        //---------------------------------------------------------------------
 
-      //chart values and styling
-      var ctx = document.getElementById('myChart').getContext('2d');
-      var myChart = new Chart(ctx, {
-          type: 'line',
-          data: {
-              labels: timevalues,
-              datasets: [{
-                  label: 'Close Price',
+        //get the EMA 5 values {just 100}--------------------------------------
+        var ema5 = []
+        for (var i in data_ema5["Technical Analysis: EMA"]) {
+          if (data_ema5["Technical Analysis: EMA"].hasOwnProperty(i))
+          ema5.push(parseFloat(data_ema5["Technical Analysis: EMA"][i]["EMA"]));
+        }
+        ema5_final = []
+        for (var i = 0; i<100; i++){
+          ema5_final.push(ema5[i]);
+        }
+        ema5_final = ema5_final.reverse();
+        //---------------------------------------------------------------------
+
+        //get the EMA 20 values {just 100}-------------------------------------
+        var ema20 = []
+        for (var i in data_ema20["Technical Analysis: EMA"]) {
+          if (data_ema20["Technical Analysis: EMA"].hasOwnProperty(i))
+          ema20.push(parseFloat(data_ema20["Technical Analysis: EMA"][i]["EMA"]));
+        }
+        ema20_final = []
+        for (var i = 0; i<100; i++){
+          ema20_final.push(ema20[i]);
+        }
+        ema20_final = ema20_final.reverse();
+        //----------------------------------------------------------------------
+
+        //get the EMA 50 values {just 100}-------------------------------------
+        var ema50 = []
+        for (var i in data_ema50["Technical Analysis: EMA"]) {
+          if (data_ema50["Technical Analysis: EMA"].hasOwnProperty(i))
+          ema50.push(parseFloat(data_ema50["Technical Analysis: EMA"][i]["EMA"]));
+        }
+        ema50_final = []
+        for (var i = 0; i<100; i++){
+          ema50_final.push(ema50[i]);
+        }
+        ema50_final = ema50_final.reverse();
+        //----------------------------------------------------------------------
+
+        //time frame of the EMA chart------------------------------------------
+        var timeEMAvalues = []
+        for (var i in data_ema20["Technical Analysis: EMA"]) {
+          if (data_ema20["Technical Analysis: EMA"].hasOwnProperty(i))
+          timeEMAvalues.push(i);
+        }
+        timeEMAvalues_final = []
+        for (var i = 0; i<100; i++){
+          timeEMAvalues_final.push(timeEMAvalues[i]);
+        }
+        timeEMAvalues_final = timeEMAvalues_final.reverse();
+
+        console.log(timeEMAvalues_final);
+        //----------------------------------------------------------------------
+
+        //Main Chart of the Stock-----------------------------------------------
+        var ctx = document.getElementById('mainChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: timevalues,
+                datasets: [{
+                    label: 'Close Price',
+                    minBarLength: 200,
+                    data: value,
+                    fill: false,
+                    borderColor: [
+                        'rgba(50, 205, 50)'],
+                    borderWidth: 1,
+                },
+              ]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: false
+                        }
+                    }],
+                    xAxes: [{
+                        display:false
+                    }]
+                },
+            }
+        });
+
+        //Moving Avarage Charts------------------------------------------------
+        var ctx = document.getElementById('movaChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: timeEMAvalues_final,
+                datasets: [{
+                  label: 'EMA 5',
                   minBarLength: 200,
-                  data: value,
+                  data: ema5_final,
                   fill: false,
-                  backgroundColor: [
-                      'rgba(0, 0, 0)'],
-                  borderColor: [
-                      'rgba(0, 0, 0)'],
+                  backgroundColor: ['rgba(255, 0, 0)'],
+                  borderColor: ['rgba(0, 0, 0)'],
                   borderWidth: 1,
-              },{
-                label: 'EMA 20',
-                minBarLength: 200,
-                data: ema20_final,
-                fill: false,
-                backgroundColor: ['rgba(255, 0, 0)'],
-                borderColor: ['rgba(255, 0, 0)'],
-                borderWidth: 1,
-              },{
-                label: 'EMA 10',
-                minBarLength: 200,
-                data: ema10_final,
-                fill: false,
-                backgroundColor: ['rgba(0, 0, 255)'],
-                borderColor: ['rgba(0, 0, 255)'],
-                borderWidth: 1,
-              }
-            ]
-          },
-          options: {
-              scales: {
-                  yAxes: [{
-                      ticks: {
-                          beginAtZero: false
-                      }
-                  }]
-              }
-          }
-      });
+                },{
+                  label: 'EMA 20',
+                  minBarLength: 200,
+                  data: ema20_final,
+                  fill: false,
+                  backgroundColor: ['rgba(0, 0, 0)'],
+                  borderColor: ['rgba(255, 0, 0)'],
+                  borderWidth: 1,
+                },{
+                  label: 'EMA 50',
+                  minBarLength: 200,
+                  data: ema50_final,
+                  fill: false,
+                  backgroundColor: ['rgba(0, 0, 255)'],
+                  borderColor: ['rgba(0, 0, 255)'],
+                  borderWidth: 1,
+                }
+              ]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: false
+                        }
+                    }],
+                    xAxes: [{
+                        display:false
+                    }]
+                }
+            }
+        });
 
-    }
+      }
 
-    getData();
-</script>
-
+      getData();
+    </script>
+    <!------------------------------>
 {% endblock %}
