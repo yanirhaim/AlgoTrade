@@ -3,55 +3,16 @@
 {% block content %}
 
 <div class="container-fluid">
-    <h1 class="display-10">Your Stock Watchlist 📈</h1>
-    <hr class="my-4">
+  <ul class="list-group list-group-horizontal-sm">
+    {% for name in valueables%}
+    <li class="list-group-item bg-dark" style="color: aliceblue;"><b>{{name.ticker}}</b> &nbsp;<span class="badge badge-success">$ {{name.price}}</span></li>
+    {% endfor %}
+  </ul>
+<div>
 
-    <div class="container-fluid">
-        <div class="row row-cols-10 justify-content-between">
-            <!--Stocks value from API-->
-            {% for name in valueables %}
-            <a href="{% url 'stock' name.ticker %}">
-                <div class="card border-dark mb-3" style="max-width: 9.5rem; max-height: 10rem;">
-                    <div class="card-header card text-center"><h5>{{name.ticker}}</h5></div>
-                    <div class="card-body text-dark card text-center">
-                        <h5 class="card-text">$ {{name.price}}</h5>  
-                    </div>
-                </div>
-             </a>
-            {% endfor%}
-        </div>
-    </div>
-    <br/>
-    <br/>
-    <h1 class="display-10">Our Fav ❤️ Stocks</h1>
-    <hr class="my-4">
-    <div class="row">
-        <div class="col-4">
-          <div class="list-group" id="list-tab" role="tablist">
-            <a class="list-group-item list-group-item-action active" id="list-home-list" data-toggle="list" href="#list-home" role="tab" aria-controls="home">Apple Inc.</a>
-            <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="profile">Tesla Inc.</a>
-            <a class="list-group-item list-group-item-action" id="list-messages-list" data-toggle="list" href="#list-messages" role="tab" aria-controls="messages">Microsoft Corp.</a>
-            <a class="list-group-item list-group-item-action" id="list-settings-list" data-toggle="list" href="#list-settings" role="tab" aria-controls="settings">Alphabet Inc.</a>
-          </div>
-        </div>
-        <div class="col-8">
-          <div class="tab-content" id="nav-tabContent">
-            <div class="tab-pane fade show active" id="list-home" role="tabpanel" aria-labelledby="list-home-list">
+<br/>
+<br/>
 
-            </div>
-            <div class="tab-pane fade" id="list-profile" role="tabpanel" aria-labelledby="list-profile-list">
-
-            </div>
-            <div class="tab-pane fade" id="list-messages" role="tabpanel" aria-labelledby="list-messages-list">
-
-            </div>
-            <div class="tab-pane fade" id="list-settings" role="tabpanel" aria-labelledby="list-settings-list">
-                
-            </div>
-          </div>
-        </div>
-      </div>
-</div>
 
 {% endblock %}
 

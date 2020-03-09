@@ -8,20 +8,22 @@ def stock (request, stock_id):
     import json
 
     api_request = requests.get("https://cloud.iexapis.com/stable/stock/" + stock_id + "/quote?token=pk_b613df2d4a924702ae1e2a134c2bbaba")
+    r = requests.get('https://finnhub.io/api/v1/stock/profile?symbol='+ stock_id +'&token=bpj80ufrh5rbrf4nci1g')
 
     try:
         api = json.loads(api_request.content)
         stock_name = api['companyName'].split(',')[0]
         stock_name = stock_name.split()[0]
         news_request = requests.get("http://newsapi.org/v2/top-headlines?q=" + stock_name + "&apiKey=166d39cbdc1e4442b00b48ec3880f9d6")
-        news = json.loads(news_request.content)        
+        news = json.loads(news_request.content)
+        info = json.loads(r.content)        
     except Exception as e:
         api = 'Error'
 
     news = news['articles']
 
     articles = [] 
-    amount_art = 5;
+    amount_art = 4;
     count = 0;
 
     for items in news:
@@ -33,6 +35,7 @@ def stock (request, stock_id):
     return render(request, "stock.html", {
         'api':api,
         'news':articles,
+        'info':info,
     })
 
 
