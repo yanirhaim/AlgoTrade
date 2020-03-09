@@ -31,10 +31,9 @@
                 <a class="nav-link {% block active_about %}{% endblock %} " href="{% url 'about' %}">About</a>
               </li>
           </ul>
-          <form action="{% url 'home' %}" class="form-inline my-2 my-lg-0" method="POST">
-            {% csrf_token %}
-            <input class="form-control mr-sm-2" type="search" placeholder="Search Stock" aria-label="Search" name="ticker" >
-            <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Quick Look</button>
+          <form action="{% url 'search' %}" class="form-inline my-2 my-lg-0" method="GET">
+            <input class="form-control mr-sm-2" value="{{request.GET.q}}" type="search" placeholder="Search Stock" aria-label="Search" name="q" >
+            <button class="btn btn-outline-light my-2 my-sm-0" type="submit" id="ticker">Quick Look</button>
           </form>
         </div>
       </nav>

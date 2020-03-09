@@ -38,45 +38,31 @@ def stock (request, stock_id):
         'info':info,
     })
 
-
-#MAIN PAGE - AND STOCK SEARCH PAGE
+#MAIN PAGE
 def index(request):
     import requests
     import json
 
-    if request.method == 'POST':
-        ticker = request.POST['ticker']
-        api_request = requests.get("https://cloud.iexapis.com/stable/stock/" + ticker + "/quote?token=pk_b613df2d4a924702ae1e2a134c2bbaba")
-        try:
-            api = json.loads(api_request.content)
-        except Exception as e:
-            api = 'Error'
+    api_requestm = requests.get("https://financialmodelingprep.com/api/v3/stock/gainers")
         
-        return render(request,"stock.html",{
-            'api':api,
-        })
-
-    else:
-
-        api_requestm = requests.get("https://financialmodelingprep.com/api/v3/stock/gainers")
-        try:
-            api = json.loads(api_requestm.content)
-        except Exception as e:
-            api = 'Error'
+    try:
+        api = json.loads(api_requestm.content)
+    except Exception as e:
+        api = 'Error'
             
-        valueables = []
-        count = 0
-        for item in api['mostGainerStock']:
-            if count < 10: #quantity of gainer stocks you want
-                valueables.append(item)
-                count += 1
-            else:
-                break
+    valueables = []
+    count = 0
+    for item in api['mostGainerStock']:
+        if count < 10: #quantity of gainer stocks you want
+            valueables.append(item)
+            count += 1
+        else:
+            break
 
-        return render(request,"index.html",{
-            'api':'',
-            'valueables': valueables,
-        })
+    return render(request,"index.html",{
+        'api':'',
+        'valueables': valueables,
+    })
 
 #ABOUT PAGE
 def about(request):
@@ -129,3 +115,43 @@ def delete(request, stock_id):
     item.delete()
     messages.success(request, ('You deleted the Stock from your Portfolio'))
     return redirect('my_stocks')
+
+def stock_s(request):
+    query = request.GET.get('q')
+
+    stock_id = query
+
+    import requests
+    import json
+
+    api_request = requests.get("https://cloud.iexapis.com/stable/stock/" + stock_id + "/quote?token=pk_b613df2d4a924702ae1e2a134c2bbaba")
+    r = requests.get('https://finnhub.io/api/v1/stock/profile?symbol='+ stock_id +'&token=bpj80ufrh5rbrf4nci1g')
+
+    try:
+        api = json.loads(api_request.content)
+        stock_name = api['companyName'].split(',')[0]
+        stock_name = stock_name.split()[0]
+        news_request = requests.get("http://newsapi.org/v2/top-headlines?q=" + stock_name + "&apiKey=166d39cbdc1e4442b00b48ec3880f9d6")
+        news = json.loads(news_request.content)
+        info = json.loads(r.content)        
+    except Exception as e:
+        api = 'Error'
+
+    news = news['articles']
+
+    articles = [] 
+    amount_art = 4;
+    count = 0;
+
+    for items in news:
+        if count < amount_art:
+            articles.append(items)
+            count = count + 1
+
+
+    return render(request, "stock.html", {
+        'api':api,
+        'news':articles,
+        'info':info,
+    })
+
