@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title%}AlgoTrade | {{stock.symbol}} | ${{stock.profile.price}} {% endblock %}
+{% block title%}AlgoTrade | {{stock.symbol}} {% endblock %}
 
 {% block content %}
 
@@ -8,11 +8,7 @@
     <div class="container-fluid">
       <li class="list-group-item bg-dark" style="color: aliceblue;"><h1><b>{{stock.profile.companyName}}</b> ({{stock.symbol}})
         <br/>
-        {% if stock.profile.changes < 0 %}
-          <span class="badge badge-danger">$ {{stock.profile.price}} &nbsp; -${{change}}/{{stock.profile.changesPercentage}}</span></h1>
-        {% else %}
-          <span class="badge badge-success">$ {{stock.profile.price}} &nbsp; ${{change}}/{{stock.profile.changesPercentage}}</span></h1>
-        {% endif %}
+          <h1><span class="badge" style="background-color: 	#a7d8de;" id="price"></span></h1>
       </li>
     </div>
     <br/>
@@ -111,9 +107,10 @@
       var symbol = "{{stock.symbol}}";
 
       //Get API//
+      const stock_url = 'https://fmpcloud.io/api/v3/quote/'+ symbol +'?apikey=4f2b01132ec60b46eaa5a5916775d383'
       const api_url = 'https://fmpcloud.io/api/v3/historical-chart/30min/'+ symbol +'?apikey=4f2b01132ec60b46eaa5a5916775d383'
       
-      async function getData(){
+      async function getGraph(){
         //fetch the data on the api---------------------
         var response = await fetch(api_url);
         var data = await response.json();
@@ -147,7 +144,7 @@
                     data: value,
                     fill: false,
                     backgroundColor: '#34384b',
-                    borderColor:'#228b22',
+                    borderColor:'#a7d8de',
                     borderWidth: 4,
                 },
               ]
@@ -169,7 +166,31 @@
             }
         });
       }
+      getGraph();
+      setInterval(getGraph, 300000);
 
-      getData();
+      async function getStock(){
+        //fetch the data on the api---------------------
+        var stock_r = await fetch(stock_url);
+        var stock_d = await stock_r.json();
+
+        //get the values from the API
+        //get the price-------------------------------------------------
+        price = parseFloat(stock_d[0]['price']).toFixed(2);
+        price = '$' + price;
+        //get the change percentage
+        change_per = parseFloat(stock_d[0]['changesPercentage']).toFixed(2);
+        change_per = '' + change_per + '%';
+        //get the change 
+        change_p = parseFloat(stock_d[0]['change']).toFixed(2);
+        change_p = '$' + change_p;
+        //send the value to the page
+        document.getElementById('price').textContent = price + ' - ' + change_p + '/' + change_per;
+      }
+
+      getStock();
+      setInterval(getStock, 10000)
+      
+
     </script>
 {% endblock %}
