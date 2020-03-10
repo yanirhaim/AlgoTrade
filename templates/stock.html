@@ -1,27 +1,36 @@
 {% extends "base.html" %}
 
-{% block title%}AlgoTrade | {{api.symbol}} | ${{api.latestPrice}} {% endblock %}
+{% block title%}AlgoTrade | {{stock.symbol}} | ${{stock.profile.price}} {% endblock %}
 
 {% block content %}
 
   <div class="container">
     <div class="container-fluid">
-      <li class="list-group-item bg-dark" style="color: aliceblue;"><h1><b>{{api.companyName}}</b> ({{api.symbol}})&nbsp;<span class="badge badge-success float-right">$ {{api.latestPrice}}</span></h1></li>
+      <li class="list-group-item bg-dark" style="color: aliceblue;"><h1><b>{{stock.profile.companyName}}</b> ({{stock.symbol}})
+        <br/>
+        {% if stock.profile.changes < 0 %}
+          <span class="badge badge-danger">$ {{stock.profile.price}} &nbsp; -${{change}}/{{stock.profile.changesPercentage}}</span></h1>
+        {% else %}
+          <span class="badge badge-success">$ {{stock.profile.price}} &nbsp; ${{change}}/{{stock.profile.changesPercentage}}</span></h1>
+        {% endif %}
+      </li>
     </div>
     <br/>
     <div class="container">
       <h3>
         <ul class="list-group">
-          <li class="list-group-item">Country: <b>{{info.country}}</b></li>
-          <li class="list-group-item">Sector: <b>{{info.gsector}}</b></li>
-          <li class="list-group-item">Market: <b>{{info.exchange}}</b></li>
-          <li class="list-group-item"><h6 style="text-align: justify;"><b>{{info.description}}</b></h6></li>
+          {% if stock.profile.sector == '' %}
+          {% else %}
+            <li class="list-group-item">Sector: <b>{{stock.profile.sector}}</b></li>
+          {% endif %}
+          <li class="list-group-item">Market: <b>{{stock.profile.exchange}}</b></li>
+          <li class="list-group-item"><h6 style="text-align: justify;"><b>{{stock.profile.description}}</b></h6></li>
         </ul>
       </h3>
     </div>
     <br/>
     <div class="container">
-      <li class="list-group-item" style="text-align: center;"><h1><b>Stock chart [1 hour]</b></h1></li>
+      <li class="list-group-item" style="text-align: center;"><h1><b>Stock chart [30 min]</b></h1></li>
       <li class="list-group-item" style="background-color: #292b2c;"><canvas id="mainChart" style="background-color: #292b2c;"></canvas></li>
     </div>
     <!--
@@ -70,229 +79,61 @@
     -->
     <br/>
     <br/>
-    <h1 class="display-10 font-weight-bold">
-      News 📰
-    </h1>
-    <hr class="my-4">
-      <div class="row">
-       {% for item in news %} 
-          <div class="col-sm-6" style="width: 18rem;">
-            <img src="{{item.urlToImage}}" class="card-img-top" alt="...">
-            <div class="card-body">
-              <h5 class="card-title">{{item.title}}</h5>
-              <p class="card-text" style="text-align: justify;">{{item.content}}</p>
-              <a href="{{item.url}}" class="btn btn-primary">Take a Look</a>
-            </div>
-          </div>
-          <br/>
-         {% endfor %}
-       </div>
 
+    {% if news_b == 0 %}
+    {% else %}
+      <h1 class="display-10 font-weight-bold">
+        Latest {{stock.symbol}} news 📰
+      </h1>
+      <hr class="my-4">
+        <div class="row">
+        {% for item in news %} 
+            <div class="col-sm-6" style="width: 18rem;">
+              <img src="{{item.urlToImage}}" class="card-img-top" alt="...">
+              <div class="card-body">
+                <h5 class="card-title">{{item.title}}</h5>
+                <p class="card-text" style="text-align: justify;">{{item.content}}</p>
+                <a href="{{item.url}}" class="btn btn-primary">Take a Look</a>
+              </div>
+            </div>
+            <br/>
+          {% endfor %}
+        </div>
+    {% endif %}
     <br/>
     <br/>
     <br/>
 
   </div>
-    <!-- 
-      <ul class="list-group w-25 p-3">
-      {% for key, value in api.items %}
-        {% if value %}
-          {% if value == "None" %}
-          {% else %}
-            <li class="list-group-item">{{key}} : {{value}}</li>
-          {% endif %}
-        {% endif %} 
-      {% endfor %}
-      </ul>
-    -->
-
     <!-- Java Script for chart.js-->
     <script>
 
-      var symbol = "{{api.symbol}}";
+      var symbol = "{{stock.symbol}}";
 
-      //Get APIS//
-      //API : 00ZERKSSLUKN4XIR
-      const api_url = 'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol='+ symbol +'&interval=60min&apikey=00ZERKSSLUKN4XIR'
-      //const ema5_ulr = 'https://www.alphavantage.co/query?function=EMA&symbol='+ symbol +'&interval=15min&time_period=5&series_type=open&apikey=00ZERKSSLUKN4XIR'
-      //const ema20_ulr = 'https://www.alphavantage.co/query?function=EMA&symbol='+ symbol +'&interval=15min&time_period=20&series_type=open&apikey=00ZERKSSLUKN4XIR'
-      //const ema50_ulr = 'https://www.alphavantage.co/query?function=EMA&symbol='+ symbol +'&interval=15min&time_period=50&series_type=open&apikey=00ZERKSSLUKN4XIR'
-      //const macd_ulr = 'https://www.alphavantage.co/query?function=MACD&symbol='+ symbol +'&interval=15min&series_type=open&apikey=00ZERKSSLUKN4XIR'
-      //const sma_url = 'https://www.alphavantage.co/query?function=SMA&symbol='+ symbol +'&interval=15min&time_period=28&series_type=open&apikey=R5PDUEUMT1YYNJGR'
-
+      //Get API//
+      const api_url = 'https://fmpcloud.io/api/v3/historical-chart/30min/'+ symbol +'?apikey=4f2b01132ec60b46eaa5a5916775d383'
+      
       async function getData(){
         //fetch the data on the api---------------------
         var response = await fetch(api_url);
         var data = await response.json();
 
-        //var response2 = await fetch(ema5_ulr);
-        //var data_ema5 = await response2.json();
-
-        //var response3 = await fetch(ema20_ulr);
-        //var data_ema20 = await response3.json();
-
-        //var response4 = await fetch(ema50_ulr);
-        //var data_ema50 = await response4.json();
-
-        //var response5 = await fetch(macd_ulr);
-        //var data_macd = await response5.json();
-
-        //var response6 = await fetch(sma_url);
-        //var data_sma = await response6.json();
-      //------------------------------------------------
-
-
         //get the values from the API
-
         //get the close values-------------------------------------------------
         var value = []
-        for (var i in data["Time Series (60min)"]) {
-          if (data["Time Series (60min)"].hasOwnProperty(i))
-          value.push(parseFloat(data["Time Series (60min)"][i]["4. close"]));
+        for (var i in data) {
+          value.push(parseFloat(data[i]["close"]));
         }
         value = value.reverse();
         //---------------------------------------------------------------------
 
         //time frame of the main chart-----------------------------------------
         var timevalues = []
-        for (var i in data["Time Series (60min)"]) {
-          if (data["Time Series (60min)"].hasOwnProperty(i))
-          timevalues.push(i);
+        for (var i in data) {
+          timevalues.push(data[i]["date"]);
         }
         timevalues = timevalues.reverse();
         //---------------------------------------------------------------------
-
-        /*get the EMA 5 values {just 100}--------------------------------------
-        var ema5 = []
-        for (var i in data_ema5["Technical Analysis: EMA"]) {
-          if (data_ema5["Technical Analysis: EMA"].hasOwnProperty(i))
-          ema5.push(parseFloat(data_ema5["Technical Analysis: EMA"][i]["EMA"]));
-        }
-        ema5_final = []
-        for (var i = 0; i<100; i++){
-          ema5_final.push(ema5[i]);
-        }
-        ema5_final = ema5_final.reverse();
-        ----------------------------------------------------------------------*/
-
-        /*get the EMA 20 values {just 100}-------------------------------------
-        var ema20 = []
-        for (var i in data_ema20["Technical Analysis: EMA"]) {
-          if (data_ema20["Technical Analysis: EMA"].hasOwnProperty(i))
-          ema20.push(parseFloat(data_ema20["Technical Analysis: EMA"][i]["EMA"]));
-        }
-        ema20_final = []
-        for (var i = 0; i<100; i++){
-          ema20_final.push(ema20[i]);
-        }
-        ema20_final = ema20_final.reverse();
-        ----------------------------------------------------------------------*/
-
-        /*get the EMA 50 values {just 100}-------------------------------------
-        var ema50 = []
-        for (var i in data_ema50["Technical Analysis: EMA"]) {
-          if (data_ema50["Technical Analysis: EMA"].hasOwnProperty(i))
-          ema50.push(parseFloat(data_ema50["Technical Analysis: EMA"][i]["EMA"]));
-        }
-        ema50_final = []
-        for (var i = 0; i<100; i++){
-          ema50_final.push(ema50[i]);
-        }
-        ema50_final = ema50_final.reverse();
-        ----------------------------------------------------------------------*/
-
-        /*time frame of the EMA chart------------------------------------------
-        var timeEMAvalues = []
-        for (var i in data_ema20["Technical Analysis: EMA"]) {
-          if (data_ema20["Technical Analysis: EMA"].hasOwnProperty(i))
-          timeEMAvalues.push(i);
-        }
-        timeEMAvalues_final = []
-        for (var i = 0; i<100; i++){
-          timeEMAvalues_final.push(timeEMAvalues[i]);
-        }
-        timeEMAvalues_final = timeEMAvalues_final.reverse();
-        ----------------------------------------------------------------------*/
-
-        /*time frame of the MACD chart------------------------------------------
-        var timeMACD = []
-        for (var i in data_macd["Technical Analysis: MACD"]) {
-          if (data_macd["Technical Analysis: MACD"].hasOwnProperty(i))
-          timeMACD.push(i);
-        }
-        timeMACD_final = []
-        for (var i = 0; i<100; i++){
-          timeMACD_final.push(timeMACD[i]);
-        }
-        timeMACD_final = timeMACD_final.reverse();
-        ----------------------------------------------------------------------*/
-
-        /*MACD values chart----------------------------------------------------
-        var macd = []
-        for (var i in data_macd["Technical Analysis: MACD"]) {
-          if (data_macd["Technical Analysis: MACD"].hasOwnProperty(i))
-          macd.push(parseFloat(data_macd["Technical Analysis: MACD"][i]["MACD"]));
-        }
-        macd_final = []
-        for (var i = 0; i<100; i++){
-          macd_final.push(macd[i]);
-        }
-        macd_final = macd_final.reverse();
-        ----------------------------------------------------------------------*/
-
-        /*MACD_Hist values chart-------------------------------------------------
-        var macd_h = []
-        for (var i in data_macd["Technical Analysis: MACD"]) {
-          if (data_macd["Technical Analysis: MACD"].hasOwnProperty(i))
-          macd_h.push(parseFloat(data_macd["Technical Analysis: MACD"][i]["MACD_Hist"]));
-        }
-        macdh_final = []
-        for (var i = 0; i<100; i++){
-          macdh_final.push(macd_h[i]);
-        }
-        macdh_final = macdh_final.reverse();
-        ----------------------------------------------------------------------*/
-
-        /*MACD_Hist values chart-------------------------------------------------
-        var macd_s = []
-        for (var i in data_macd["Technical Analysis: MACD"]) {
-          if (data_macd["Technical Analysis: MACD"].hasOwnProperty(i))
-          macd_s.push(parseFloat(data_macd["Technical Analysis: MACD"][i]["MACD_Signal"]));
-        }
-        macds_final = []
-        for (var i = 0; i<100; i++){
-          macds_final.push(macd_s[i]);
-        }
-        macds_final = macds_final.reverse();
-        
-
-        /*get the SMA 28 values {just 100}-------------------------------------
-        var sma28 = []
-        for (var i in data_sma["Technical Analysis: SMA"]) {
-          if (data_sma["Technical Analysis: SMA"].hasOwnProperty(i))
-          sma28.push(parseFloat(data_sma["Technical Analysis: SMA"][i]["SMA"]));
-        }
-        sma28_final = []
-        for (var i = 0; i<100; i++){
-          sma28_final.push(sma28[i]);
-        }
-        sma28_final = sma28_final.reverse();
-        console.log(sma28_final)
-        ----------------------------------------------------------------------*/
-
-        /*time frame of the SMA chart------------------------------------------
-        var timeSAMvalues = []
-        for (var i in data_sma["Technical Analysis: SMA"]) {
-          if (data_sma["Technical Analysis: SMA"].hasOwnProperty(i))
-          timeSAMvalues.push(i);
-        }
-        timeSAMvalues_final = []
-        for (var i = 0; i<100; i++){
-          timeSAMvalues_final.push(timeSAMvalues[i]);
-        }
-        timeSAMvalues_final = timeSAMvalues_final.reverse();
-        console.log(timeSAMvalues_final)
-        ----------------------------------------------------------------------*/
 
         //Main Chart of the Stock-----------------------------------------------
         var ctx = document.getElementById('mainChart').getContext('2d');
@@ -327,126 +168,8 @@
                 },
             }
         });
-
-        /*Moving Avarage Charts------------------------------------------------
-        var ctx = document.getElementById('movaChart').getContext('2d');
-        var myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: timeEMAvalues_final,
-                datasets: [{
-                  label: 'EMA 5',
-                  data: ema5_final,
-                  fill: false,
-                  borderColor: 'rgba(0, 0, 0)',
-                },{
-                  label: 'EMA 20',
-                  data: ema20_final,
-                  fill: false,
-                  borderColor: "#FF0000",
-                },{
-                  label: 'EMA 50',
-                  data: ema50_final,
-                  fill: false,
-                  borderColor: "#0000FF",
-                }
-              ]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: false
-                        }
-                    }],
-                    xAxes: [{
-                        display:false
-                    }]
-                }
-            }
-        });
-        */
-        /*MACD Charts------------------------------------------------
-        var ctx = document.getElementById('macdChart').getContext('2d');
-        var myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: timeMACD_final,
-                datasets: [{
-                  type: 'line',
-                  label: 'MACD SIGNAL',
-                  borderColor: "#FF0000",
-                  data: macds_final,
-                  fill: false,
-                },{
-                  type: 'line',
-                  label: 'MACD',
-                  borderColor: "#0000FF",
-                  data: macd_final,
-                  fill: false,
-                },{
-                  label: 'MACD HIST',
-                  backgroundColor: "b#36ecd",
-                  data: macdh_final,
-                },
-              ]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: false
-                        }
-                    }],
-                    xAxes: [{
-                        display:false
-                    }]
-                }
-            }
-        });
-        */
-
-        /*Simple Moving Avarage Chart------------------------------------------------
-        var ctx = document.getElementById('smaChart').getContext('2d');
-        var myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: timeSAMvalues_final,
-                datasets: [{
-                  label: 'SMA 28',
-                  minBarLength: 200,
-                  data: sma28_final,
-                  fill: false,
-                  backgroundColor: ['rgba(255, 0, 0)'],
-                  borderWidth: 1,
-                },{
-                  label: 'Close Price',
-                  minBarLength: 200,
-                  data: value,
-                  fill: false,
-                  backgroundColor: ['rgba(0, 0, 0)'],
-                  borderWidth: 1,
-                }
-              ]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: false
-                        }
-                    }],
-                    xAxes: [{
-                        display:false
-                    }]
-                }
-            }
-        });
-        ----------------------------------------------------------------------*/
-
       }
 
       getData();
     </script>
-    <!------------------------------>
 {% endblock %}

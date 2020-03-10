@@ -8,17 +8,23 @@ def stock (request, stock_id):
     import json
 
     api_request = requests.get("https://cloud.iexapis.com/stable/stock/" + stock_id + "/quote?token=pk_b613df2d4a924702ae1e2a134c2bbaba")
-    r = requests.get('https://finnhub.io/api/v1/stock/profile?symbol='+ stock_id +'&token=bpj80ufrh5rbrf4nci1g')
+    stock = requests.get('https://fmpcloud.io/api/v3/company/profile/'+ stock_id +'?apikey=4f2b01132ec60b46eaa5a5916775d383')
 
     try:
         api = json.loads(api_request.content)
         stock_name = api['companyName'].split(',')[0]
         stock_name = stock_name.split()[0]
         news_request = requests.get("http://newsapi.org/v2/top-headlines?q=" + stock_name + "&apiKey=166d39cbdc1e4442b00b48ec3880f9d6")
-        news = json.loads(news_request.content)
-        info = json.loads(r.content)        
+        news = json.loads(news_request.content)   
+        stock = json.loads(stock.content)
+
     except Exception as e:
         api = 'Error'
+
+    if stock['profile']['changes'] < 0:
+        stock_change = stock['profile']['changes']*-1
+    else:
+        stock_change = stock['profile']['changes']
 
     news = news['articles']
 
@@ -31,11 +37,16 @@ def stock (request, stock_id):
             articles.append(items)
             count = count + 1
 
+    if len(articles) == 0:
+        stat_n = 0
+    else:
+        stat_n = 1
 
     return render(request, "stock.html", {
-        'api':api,
         'news':articles,
-        'info':info,
+        'news_b': stat_n,
+        'stock':stock,
+        'change':stock_change,
     })
 
 #MAIN PAGE
@@ -50,18 +61,18 @@ def index(request):
     except Exception as e:
         api = 'Error'
             
-    valueables = []
+    gainers = []
     count = 0
     for item in api['mostGainerStock']:
         if count < 10: #quantity of gainer stocks you want
-            valueables.append(item)
+            gainers.append(item)
             count += 1
         else:
             break
 
     return render(request,"index.html",{
         'api':'',
-        'valueables': valueables,
+        'valueables': gainers,
     })
 
 #ABOUT PAGE

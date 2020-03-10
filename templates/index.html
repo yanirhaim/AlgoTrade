@@ -2,16 +2,6 @@
 
 {% block content %}
 
-<div class="container-fluid">
-  <ul class="list-group list-group-horizontal-sm">
-    {% for name in valueables%}
-    <li class="list-group-item bg-dark" style="color: aliceblue;"><a href="{% url 'stock' name.ticker %}" style="color: aliceblue;"><b>{{name.ticker}}</b>
-    </a></a> &nbsp;<span class="badge badge-success">$ {{name.price}}</span></li>
-    {% endfor %}
-  </ul>
-<div>
-<br/>
-<br/>
 
 
 {% endblock %}
