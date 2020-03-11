@@ -76,30 +76,6 @@
     <br/>
     <br/>
 
-    {% if news_b == 0 %}
-    {% else %}
-      <h1 class="display-10 font-weight-bold">
-        Latest {{stock.symbol}} news 📰
-      </h1>
-      <hr class="my-4">
-        <div class="row">
-        {% for item in news %} 
-            <div class="col-sm-6" style="width: 18rem;">
-              <img src="{{item.urlToImage}}" class="card-img-top" alt="...">
-              <div class="card-body">
-                <h5 class="card-title">{{item.title}}</h5>
-                <p class="card-text" style="text-align: justify;">{{item.content}}</p>
-                <a href="{{item.url}}" class="btn btn-primary">Take a Look</a>
-              </div>
-            </div>
-            <br/>
-          {% endfor %}
-        </div>
-    {% endif %}
-    <br/>
-    <br/>
-    <br/>
-
   </div>
     <!-- Java Script for chart.js-->
     <script>

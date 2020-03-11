@@ -7,46 +7,16 @@ def stock (request, stock_id):
     import requests
     import json
 
-    api_request = requests.get("https://cloud.iexapis.com/stable/stock/" + stock_id + "/quote?token=pk_b613df2d4a924702ae1e2a134c2bbaba")
     stock = requests.get('https://fmpcloud.io/api/v3/company/profile/'+ stock_id +'?apikey=4f2b01132ec60b46eaa5a5916775d383')
 
     try:
-        api = json.loads(api_request.content)
-        stock_name = api['companyName'].split(',')[0]
-        stock_name = stock_name.split()[0]
-        news_request = requests.get("http://newsapi.org/v2/top-headlines?q=" + stock_name + "&apiKey=166d39cbdc1e4442b00b48ec3880f9d6")
-        news = json.loads(news_request.content)   
         stock = json.loads(stock.content)
 
     except Exception as e:
         api = 'Error'
 
-    if stock['profile']['changes'] < 0:
-        stock_change = stock['profile']['changes']*-1
-    else:
-        stock_change = stock['profile']['changes']
-
-    news = news['articles']
-
-    articles = [] 
-    amount_art = 4;
-    count = 0;
-
-    for items in news:
-        if count < amount_art:
-            articles.append(items)
-            count = count + 1
-
-    if len(articles) == 0:
-        stat_n = 0
-    else:
-        stat_n = 1
-
     return render(request, "stock.html", {
-        'news':articles,
-        'news_b': stat_n,
         'stock':stock,
-        'change':stock_change,
     })
 
 #MAIN PAGE
@@ -54,25 +24,40 @@ def index(request):
     import requests
     import json
 
-    api_requestm = requests.get("https://financialmodelingprep.com/api/v3/stock/gainers")
+    api_gainer = requests.get("https://financialmodelingprep.com/api/v3/stock/gainers?apikey=4f2b01132ec60b46eaa5a5916775d383")
+    api_loser = requests.get("https://financialmodelingprep.com/api/v3/stock/losers?apikey=4f2b01132ec60b46eaa5a5916775d383")
+    api_active = requests.get("https://financialmodelingprep.com/api/v3/stock/actives?apikey=4f2b01132ec60b46eaa5a5916775d383")
+    api_sector = requests.get("https://financialmodelingprep.com/api/v3/stock/sectors-performance?apikey=4f2b01132ec60b46eaa5a5916775d383")
         
     try:
-        api = json.loads(api_requestm.content)
+        gainer = json.loads(api_gainer.content)
+        loser = json.loads(api_loser.content)
+        active = json.loads(api_active.content)
+        sector = json.loads(api_sector.content)
     except Exception as e:
         api = 'Error'
-            
-    gainers = []
-    count = 0
-    for item in api['mostGainerStock']:
-        if count < 10: #quantity of gainer stocks you want
-            gainers.append(item)
-            count += 1
+    
+    gainer = gainer['mostGainerStock']
+    loser = loser['mostLoserStock']
+    active = active['mostActiveStock']
+    sector = sector['sectorPerformance']
+
+    sector_n = []
+    count = 0 
+
+    for items in sector:
+        if count < 10:
+            sector_n.append(items)
+            count = count + 1
         else:
             break
 
     return render(request,"index.html",{
         'api':'',
-        'valueables': gainers,
+        'gainer_list': gainer,
+        'loser_list':loser,
+        'active_list':active,
+        'sector_list':sector_n,
     })
 
 #ABOUT PAGE

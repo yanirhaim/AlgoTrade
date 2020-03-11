@@ -1,11 +1,117 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col">
+      <button type="button" class="btn btn-lg btn-block" style="background-color: #a7d8de;">
+        <b><div class="float-left" id='index_1'></div></b>
+        <div class="float-right"><span class="badge badge-light"  id='index_1_price'></span></div>
+      </button>
+    </div>
+    <div class="col">
+      <button type="button" class="btn btn-lg btn-block" style="background-color: #a7d8de;">
+        <b><div class="float-left" id='index_2'></div></b>
+        <div class="float-right"><span class="badge badge-light"  id='index_2_price'></span></div>
+      </button>
+    </div>
+    <div class="col">
+      <button type="button" class="btn btn-lg btn-block" style="background-color: #a7d8de;">
+        <b><div class="float-left" id='index_3'></div></b>
+        <div class="float-right"><span class="badge badge-light"  id='index_3_price'></span></div>
+      </button>
+    </div>
+    <div class="col">
+      <button type="button" class="btn btn-lg btn-block" style="background-color: #a7d8de;">
+        <b><div class="float-left" id='index_4'></div></b>
+        <div class="float-right"><span class="badge badge-light"  id='index_4_price'></span></div>
+      </button>
+    </div>
+  </div>
+  <hr class="my-4">
+  <br/>
 
+  <div class="row">
+    <div class="col">
+      <ul class="list-group">
+        <li class="list-group-item" style="text-align: center; background-color: #90ee90;"><b>MOST GAINER STOCKS</b></li>
+        {% for gain in gainer_list %}
+          <li class="list-group-item">
+              <b><div class="float-left"><a href="{% url 'stock' gain.ticker %}">{{gain.ticker}}</a></div></b> &nbsp;&nbsp; <span class="badge" style="background-color: #a7d8de;">$ {{gain.price}}</span>
+              <div class="float-right"><span class="badge badge-success">{{gain.changesPercentage}}</span></div>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="col">
+      <ul class="list-group">
+        <li class="list-group-item" style="text-align: center; background-color: #f08080;"><b>MOST LOSER STOCKS</b></li>
+        {% for loser in loser_list %}
+          <li class="list-group-item">
+            <b><div class="float-left"><a href="{% url 'stock' loser.ticker %}">{{loser.ticker}}</a></div></b> &nbsp;&nbsp; <span class="badge" style="background-color: #a7d8de;">$ {{loser.price}}</span>
+            <div class="float-right"><span class="badge badge-danger">{{loser.changesPercentage}}</span></div>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="col">
+      <ul class="list-group">
+        <li class="list-group-item" style="text-align: center; background-color: #ffffe0"><b>MOST ACTIVE STOCKS</b></li>
+        {% for active in active_list %}
+          <li class="list-group-item">
+            <b><div class="float-left"><a href="{% url 'stock' active.ticker %}">{{active.ticker}}</a></div></b> &nbsp;&nbsp; <span class="badge" style="background-color: #a7d8de;">$ {{active.price}}</span>
+            <div class="float-right"><span class="badge badge" style="background-color: #ffffe0;">{{active.changesPercentage}}</span></div>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="col">
+      <ul class="list-group">
+        <li class="list-group-item" style="text-align: center; background-color: #ffa500;"><b>SECTOR PERFORMANCE</b></li>
+        {% for sector in sector_list %}
+          <li class="list-group-item">
+            <b><div class="float-left">{{sector.sector}}</div></b>
+            <div class="float-right"><span class="badge badge-warning">{{sector.changesPercentage}}</span></div>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
 
+<script>
+
+  //Get API//
+  const index_url = 'https://financialmodelingprep.com/api/v3/majors-indexes?apikey=4f2b01132ec60b46eaa5a5916775d383'
+  
+  async function getIndex(){
+    //fetch the data on the api---------------------
+    var index_api = await fetch(index_url);
+    var index = await index_api.json();
+
+    //get the values from the API
+    //get the index-------------------------------------------------
+    index_1 = index['majorIndexesList'][0]
+    document.getElementById('index_1').textContent = '' + index_1['indexName'].toUpperCase();
+    document.getElementById('index_1_price').textContent = '$' + parseFloat(index_1['price']).toFixed(2);
+    
+    index_2 = index['majorIndexesList'][1]
+    document.getElementById('index_2').textContent = '' + index_2['indexName'].toUpperCase();
+    document.getElementById('index_2_price').textContent = '$' + parseFloat(index_2['price']).toFixed(2);
+    
+    index_3 = index['majorIndexesList'][2]
+    document.getElementById('index_3').textContent = '' + index_3['indexName'].toUpperCase();
+    document.getElementById('index_3_price').textContent = '$' + parseFloat(index_3['price']).toFixed(2);
+    
+    index_4 = index['majorIndexesList'][3]
+    document.getElementById('index_4').textContent = '' + index_4['indexName'].toUpperCase();
+    document.getElementById('index_4_price').textContent = '$' + parseFloat(index_4['price']).toFixed(2);
+  }
+
+  getIndex();
+  setInterval(getIndex, 10000)
+  
+
+</script>
 
 {% endblock %}
-
-<form action="{% url 'stock' name.ticker %}" class="form-inline my-2 my-lg-0" method="GET">
-    <button class="btn btn-primary" style="width: auto; height: auto;" value="" type="submit" >🔎 Take a Look</button>
-</form>
