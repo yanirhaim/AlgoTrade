@@ -132,34 +132,18 @@ def stock_s(request):
     import requests
     import json
 
-    api_request = requests.get(
-        "https://cloud.iexapis.com/stable/stock/" + stock_id + "/quote?token=pk_b613df2d4a924702ae1e2a134c2bbaba")
-    r = requests.get('https://finnhub.io/api/v1/stock/profile?symbol=' + stock_id + '&token=bpj80ufrh5rbrf4nci1g')
+    import requests
+    import json
+
+    stock_data = requests.get(
+        'https://fmpcloud.io/api/v3/company/profile/' + stock_id + '?apikey=4f2b01132ec60b46eaa5a5916775d383')
 
     try:
-        api = json.loads(api_request.content)
-        stock_name = api['companyName'].split(',')[0]
-        stock_name = stock_name.split()[0]
-        news_request = requests.get(
-            "http://newsapi.org/v2/top-headlines?q=" + stock_name + "&apiKey=166d39cbdc1e4442b00b48ec3880f9d6")
-        news = json.loads(news_request.content)
-        info = json.loads(r.content)
+        stock_data = json.loads(stock_data.content)
+
     except Exception as e:
         api = 'Error'
 
-    news = news['articles']
-
-    articles = []
-    amount_art = 4;
-    count = 0;
-
-    for items in news:
-        if count < amount_art:
-            articles.append(items)
-            count = count + 1
-
     return render(request, "stock.html", {
-        'api': api,
-        'news': articles,
-        'info': info,
+        'stock': stock_data,
     })
