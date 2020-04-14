@@ -135,6 +135,7 @@ def stock_s(request):
     df = get_stock(stock_id)
     rsi_st = rsi_status(df, 14)
     rsi_perce = rsi_percent(df, 14)
+    sma = sma_status(df)
 
     stock_data = requests.get(
         'https://fmpcloud.io/api/v3/company/profile/' + stock_id + '?apikey=4f2b01132ec60b46eaa5a5916775d383')
@@ -145,14 +146,11 @@ def stock_s(request):
     except Exception as e:
         api = 'Error'
 
-    print(df['RSI'].index)
-
     return render(request, "stock.html", {
         'stock': stock_data,
         'rsi_status': rsi_st,
         'rsi_percent': rsi_perce,
-        'rsi_data': df['RSI'],
-        'rsi_time': df['RSI'].index,
+        'sma_status': sma,
     })
 
 # Indicators
@@ -403,3 +401,17 @@ def get_stock(ticker, start_date='2015-01-01', end_date=current_d):
 	df = pd.DataFrame(list(zip(close, adjClose)), index=dates, columns=['Close', 'adjClose'])
 
 	return df
+def sma_status(df, ma1=50, ma2=200):
+    df['{} Daily - SMA'.format(ma1)] = df['Close'].rolling(window=ma1).mean()  # moving average 6
+    df['{} Daily - SMA'.format(ma2)] = df['Close'].rolling(window=ma2).mean()  # moving average 12
+    df['Position'] = df['50 Daily - SMA'] > df['200 Daily - SMA']  # look the position between the SMA50 and SMA20
+
+    cut_up = (df['Position'].shift(1) == False) & (df['Position'] == True)  # Places where the SMAs cut UP
+    cut_down = (df['Position'].shift(1) == True) & (df['Position'] == False)  # Places where the SMAs cut DOWN
+
+    if df['Position'][-1]:
+        status = "UPWARD TREND"
+    else:
+        status = "DOWNWARD TREND"
+
+    return status

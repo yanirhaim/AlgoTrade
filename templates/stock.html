@@ -47,12 +47,8 @@
                 <span class="badge badge-success">{{rsi_percent}} %</span></a>
               {% endif %}
             <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="profile">
-              Relative Stregth Index &nbsp;
-              {% if rsi_percent < 50 %}
-                <span class="badge badge-danger">{{rsi_percent}} %</span></a>
-              {% else %}
-                <span class="badge badge-success">{{rsi_percent}} %</span></a>
-              {% endif %}
+              Simple Moving Average &nbsp;
+            </a>
           </div>
         </div>
         <div class="col-8">
@@ -82,16 +78,18 @@
               <br/>
             </div>
             <div class="tab-pane fade" id="list-profile" role="tabpanel" aria-labelledby="list-profile-list">
-              <h1 class="display-10 font-weight-bold">
-                Moving Average Convergence Divergence
-              </h1>
-              <hr class="my-4">
-              <canvas id="macdChart"></canvas>
+              <p> 
+                <h1 class="display-10 font-weight-bold">
+                  Simple Moving Average (50 - 200)
+                </h1>
+              </p>  
+              <p>
+                <h3>
+                  Status:
+                    <a style="color: darkblue;">{{rsi_status}}</a>
+                </h3>
+              </p>
               <br/>
-              <h2>How does the strategy works ?</h2>
-              <ul>
-                <li>Trade the MACD <span class="badge badge-primary">&nbsp;</span> and Signal line <span class="badge badge-danger">&nbsp;</span> crossovers. Using the trend as the context, when the price is trending higher (MACD HIST <span class="badge badge-secondary">&nbsp;</span> should be above zero line), buy when the MACD <span class="badge badge-primary">&nbsp;</span> crosses above the Signal line <span class="badge badge-danger">&nbsp;</span> from below. In a downtrend (MACD HIST <span class="badge badge-secondary">&nbsp;</span> should be below zero line), short sell when the MACD <span class="badge badge-primary">&nbsp;</span> crosses below the Signal line <span class="badge badge-danger">&nbsp;</span>.</li>
-              </ul>  
             </div>
           </div>
         </div>
